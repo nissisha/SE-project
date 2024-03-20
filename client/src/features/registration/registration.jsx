@@ -1,24 +1,80 @@
 import React, { useState } from 'react';
 import './registration.css'; 
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 import logo from "../../images/logo.GCrBBNnxnOwXs1M3EMoAJtlyEtgPZp9fU"
+
+import axios from "../../axios";
+import PopUp from "../../components/popup/popup";
+import Loader from '../../components/loader/loader';
+
+
 const RegistrationForm = () => {
+  const navigate = useNavigate();
   const [userType, setUserType] = useState('consumer'); 
 
   const [name, setname] = useState();
   const [email, setemail] = useState();
   const [password, setpassword] = useState();
-  const [prefrence, setprefrence] = useState();
+  const [contactInfo, setcontactInfo] = useState();
+  const [address, setaddress] = useState();
+  const [businessName, setbusinessName] = useState()
 
-  const [dietaryRestrictions, setdietaryRestrictions] = useState();
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted with userType:", userType);
+    try{
+      setLoading(true);
+      if(userType === "consumer"){
+        await axios.post("/auth/registration-consumer", {
+          name,
+          email,
+          password,
+        })
+      }
+      else{
+        await axios.post("/auth/registration-provider", {
+          name,
+          email,
+          password,
+          contactInfo,
+          address,
+          businessName
+        })
+      }
+      navigate("/login");
+    }catch(error){
+      setLoading(false);
+      if(error?.response?.data?.message){
+          setpopUpText(error?.response?.data?.message);
+      }
+      else{
+          setpopUpText("Something Went Wrong")
+      }
+      setIsPopUpOpen(true);
+    }
   };
+
+
+  const [isPopUpOpen, setIsPopUpOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [popUpText, setpopUpText] = useState("")
+  const [isBackgroundBlurred, setIsBackgroundBlurred] = useState(false);
+  const blurredBackgroundStyles = isBackgroundBlurred
+      ? {
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "rgba(100, 100, 100, 0.5)",
+          backdropFilter: "blur(1.8px)",
+          zIndex: 1,
+      }
+      : {};
 
   return (
     <div className="registrationFormContainer">
+      {isBackgroundBlurred && <div style={blurredBackgroundStyles} />}
+      {loading && <Loader />}
       <img src={logo} alt="App Logo" className="appLogo" /> {/* Logo at the top */}
       <h2 className="formTitle">Register as a Food Savior</h2>
       <div className="userTypeToggle">
@@ -55,57 +111,41 @@ const RegistrationForm = () => {
         {userType === 'provider' && (
           <>
             <div className="inputGroup">
-              <input type="text" placeholder="Business Name" required />
+              <input 
+                type="text" 
+                placeholder="Business Name" 
+                value={businessName}
+                onChange={(e) => setbusinessName(e.target.value)}
+                required />
             </div>
             <div className="inputGroup">
-              <input type="text" placeholder="Address" required />
-            </div>
-            <div className="inputGroup">
-              <select 
-                value={prefrence}
-                onChange={(e) => setprefrence(e.target.value)}
-                required>
-                <option value="">Type of Food Provided</option>
-                <option value="baked_goods">Baked Goods</option>
-                <option value="fresh_produce">Fresh Produce</option>
-                <option value="prepared_meals">Prepared Meals</option>
-              </select>
+              <input 
+                type="text" 
+                placeholder="Address" 
+                value={address}
+                onChange={(e) => setaddress(e.target.value)}
+                required />
             </div>
             <div className="inputGroup">
               <input
                 type="text"
-                value={dietaryRestrictions} 
+                value={contactInfo} 
                 placeholder="Contact Information" 
-                onChange={(e) => setdietaryRestrictions(e.target.value)}
+                onChange={(e) => setcontactInfo(e.target.value)}
                 required />
             </div>
           </>
         )}
-        
-        {/* Consumer-specific fields */}
-        {userType === 'consumer' && (
-          <>
-            <div className="inputGroup">
-              <select 
-                value={prefrence}
-                required>
-                <option value="">Preferences</option>
-                <option value="vegetarian">Vegetarian</option>
-                <option value="vegan">Vegan</option>
-                <option value="gluten_free">Gluten-Free</option>
-              </select>
-            </div>
-            <div className="inputGroup">
-              <input type="text" placeholder="Dietary Restrictions" />
-            </div>
-          </>
-        )}
-        
         <button type="submit" className="submitBtn">Register</button>
       </form>
       <div className="alreadyMember">
         Already have an account? <Link to="/login" className="loginLink">Log in</Link>
       </div>
+      <PopUp
+        isOpen={isPopUpOpen}
+        close={() => setIsPopUpOpen(false)}
+        text={popUpText}
+      />
     </div>
   );
 };
