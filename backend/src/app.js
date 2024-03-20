@@ -26,7 +26,11 @@ app.use(express.urlencoded({
 const cors=require("cors");
 app.use(cors());
 
+const authRoutes = require("./routes/authentication");
+app.use("/auth",authRoutes);
 
+const providerRoutes = require("./routes/provider");
+app.use("/provider",providerRoutes);
 
 app.all("/*",(req,res)=>{
     return res.status(404).json({message:"Page not found"});
