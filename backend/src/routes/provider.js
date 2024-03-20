@@ -26,4 +26,19 @@ router.post("/createListing", async(req, res) => {
         return res.status(500).json({message: "Internal Server Error"});
     }
 });
+router.get("/listings", async(req, res) => {
+    try{
+        const listings = await listingModel.find({
+            useBy:{
+                $gte: new Date()
+            }
+        }).populate('provider');
+        console.log(listings);
+        return res.status(200).json({listings});
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({message: "Internal Server Error"});
+    }
+})
+
 module.exports = router;
