@@ -1,0 +1,27 @@
+.listingsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Space between cards */
+    padding: 20px;
+    justify-content: center; /* Center cards if they don't fill the full width */
+  }
+  
+  .listingCard {
+    width: 300px; /* Fixed width for each card */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 15px;
+    box-sizing: border-box;
+  }
+  
+  .listingCard h3 {
+    color: #008080; /* Theme color for headings */
+    margin-bottom: 10px;
+  }
+  
+  .listingCard p {
+    margin-bottom: 5px;
+    color: #333; /* Dark grey for text */
+  }
+  
