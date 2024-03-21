@@ -7,6 +7,7 @@ const listingSchema = new mongoose.Schema({
         min: 6,
         max: 255
     },
+
     location: {
         type: String,
         required: true,
